@@ -1,3 +1,6 @@
+""" if not possible to insall in editable mode, try:
+pip install --user --no-use-pep517 -e.
+"""
 import setuptools
 
 with open("README.md", "r") as fh:
@@ -9,8 +12,8 @@ setuptools.setup(
     author="Aceinna",
     author_email="xgdong@aceinna.com",
     description="GNSS-INS-SIM is an GNSS/INS simulation project, "
-        "which generates reference trajectories, IMU sensor output, "
-        "GPS output, odometer output and magnetometer output.",
+    "which generates reference trajectories, IMU sensor output, "
+    "GPS output, odometer output and magnetometer output.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Aceinna/gnss-ins-sim",
