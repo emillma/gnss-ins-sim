@@ -12,12 +12,12 @@ import numpy as np
 
 D2R = math.pi/180
 
-## default IMU, magnetometer and GPS error profiles.
+# default IMU, magnetometer and GPS error profiles.
 # low accuracy, from AHRS380
-#http://www.memsic.cn/userfiles/files/Datasheets/Inertial-System-Datasheets/AHRS380SA_Datasheet.pdf
+# http://www.memsic.cn/userfiles/files/Datasheets/Inertial-System-Datasheets/AHRS380SA_Datasheet.pdf
 gyro_low_accuracy = {'b': np.array([0.0, 0.0, 0.0]) * D2R,
                      'b_drift': np.array([10.0, 10.0, 10.0]) * D2R/3600.0,
-                     'b_corr':np.array([100.0, 100.0, 100.0]),
+                     'b_corr': np.array([100.0, 100.0, 100.0]),
                      'arw': np.array([0.75, 0.75, 0.75]) * D2R/60.0}
 accel_low_accuracy = {'b': np.array([0.0e-3, 0.0e-3, 0.0e-3]),
                       'b_drift': np.array([2.0e-4, 2.0e-4, 2.0e-4]),
@@ -29,7 +29,7 @@ mag_low_accuracy = {'si': np.eye(3) + np.random.randn(3, 3)*0.0,
 # mid accuracy, partly from IMU381
 gyro_mid_accuracy = {'b': np.array([0.0, 0.0, 0.0]) * D2R,
                      'b_drift': np.array([3.5, 3.5, 3.5]) * D2R/3600.0,
-                     'b_corr':np.array([100.0, 100.0, 100.0]),
+                     'b_corr': np.array([100.0, 100.0, 100.0]),
                      'arw': np.array([0.25, 0.25, 0.25]) * D2R/60}
 accel_mid_accuracy = {'b': np.array([0.0e-3, 0.0e-3, 0.0e-3]),
                       'b_drift': np.array([5.0e-5, 5.0e-5, 5.0e-5]),
@@ -42,7 +42,7 @@ mag_mid_accuracy = {'si': np.eye(3) + np.random.randn(3, 3)*0.0,
 # http://www.dtic.mil/get-tr-doc/pdf?AD=ADA581016
 gyro_high_accuracy = {'b': np.array([0.0, 0.0, 0.0]) * D2R,
                       'b_drift': np.array([0.1, 0.1, 0.1]) * D2R/3600.0,
-                      'b_corr':np.array([100.0, 100.0, 100.0]),
+                      'b_corr': np.array([100.0, 100.0, 100.0]),
                       'arw': np.array([2.0e-3, 2.0e-3, 2.0e-3]) * D2R/60}
 accel_high_accuracy = {'b': np.array([0.0e-3, 0.0e-3, 0.0e-3]),
                        'b_drift': np.array([3.6e-6, 3.6e-6, 3.6e-6]),
@@ -52,20 +52,22 @@ mag_high_accuracy = {'si': np.eye(3) + np.random.randn(3, 3)*0.0,
                      'hi': np.array([10.0, 10.0, 10.0])*0.0,
                      'std': np.array([0.001, 0.001, 0.001])}
 
-## built-in GPS error profiles
+# built-in GPS error profiles
 gps_low_accuracy = {'stdp': np.array([5.0, 5.0, 7.0]),
                     'stdv': np.array([0.05, 0.05, 0.05])}
 
-## built-in odometer error profiles
+# built-in odometer error profiles
 odo_low_accuracy = {'scale': 0.99,
                     'stdv': 0.1}
+
+
 class IMU(object):
     '''
     IMU class
     '''
 
-    def __init__(self, accuracy='low-accuracy', axis=6,\
-                 gps=True, gps_opt=None,\
+    def __init__(self, accuracy='low-accuracy', axis=6,
+                 gps=True, gps_opt=None,
                  odo=False, odo_opt=None):
         '''
         Args:
@@ -107,7 +109,7 @@ class IMU(object):
             raise ValueError('axis should be either 6 or 9.')
 
         # built-in imu error model
-        self.gyro_err = gyro_low_accuracy                   #   default is low accuracy
+        self.gyro_err = gyro_low_accuracy  # default is low accuracy
         self.accel_err = accel_low_accuracy
         self.mag_err = mag_low_accuracy
 
@@ -135,27 +137,29 @@ class IMU(object):
                'accel_b_stability' in accuracy and\
                'accel_vrw' in accuracy:                 # check keys in accuracy
                 # required parameters
-                self.gyro_err['b'] = accuracy['gyro_b'] * D2R / 3600.0
-                self.gyro_err['b_drift'] = accuracy['gyro_b_stability'] * D2R / 3600.0
-                self.gyro_err['arw'] = accuracy['gyro_arw'] * D2R / 60.0
+                self.gyro_err['b'] = accuracy['gyro_b']
+                self.gyro_err['b_drift'] = accuracy['gyro_b_stability']
+                self.gyro_err['arw'] = accuracy['gyro_arw']
                 self.accel_err['b'] = accuracy['accel_b']
                 self.accel_err['b_drift'] = accuracy['accel_b_stability']
-                self.accel_err['vrw'] = accuracy['accel_vrw'] /60.0
+                self.accel_err['vrw'] = accuracy['accel_vrw']
                 if self.magnetometer:   # at least noise std should be specified
                     if 'mag_std' in accuracy:
                         self.mag_err['std'] = accuracy['mag_std']
                     else:
-                        raise ValueError('Magnetometer is enabled, ' +\
+                        raise ValueError('Magnetometer is enabled, ' +
                                          'but its noise std is not specified.')
                 # optional parameters
                 if 'gyro_b_corr' in accuracy:
                     self.gyro_err['b_corr'] = accuracy['gyro_b_corr']
                 else:
-                    self.gyro_err['b_corr'] = np.array([float("inf"), float("inf"), float("inf")])
+                    self.gyro_err['b_corr'] = np.array(
+                        [float("inf"), float("inf"), float("inf")])
                 if 'accel_b_corr' in accuracy:
                     self.accel_err['b_corr'] = accuracy['accel_b_corr']
                 else:
-                    self.accel_err['b_corr'] = np.array([float("inf"), float("inf"), float("inf")])
+                    self.accel_err['b_corr'] = np.array(
+                        [float("inf"), float("inf"), float("inf")])
                 if 'mag_si' in accuracy:
                     self.mag_err['si'] = accuracy['mag_si']
                 else:
@@ -166,8 +170,8 @@ class IMU(object):
                     self.mag_err['hi'] = np.array([0.0, 0.0, 0.0])
             # raise error when required keys are missing
             else:
-                raise ValueError('accuracy should at least have keys: \n' +\
-                                 'gyro_b, gyro_b_stability, gyro_arw, ' +\
+                raise ValueError('accuracy should at least have keys: \n' +
+                                 'gyro_b, gyro_b_stability, gyro_arw, ' +
                                  'accel_b, accel_b_stability and accel_vrw')
         else:
             raise TypeError('accuracy is not valid.')
@@ -234,7 +238,7 @@ class IMU(object):
                 if i in self.gyro_err:
                     self.gyro_err[i] = gyro_error[i]
                 else:
-                    raise ValueError('unsupported key: %s in gyro_error'% i)
+                    raise ValueError('unsupported key: %s in gyro_error' % i)
         else:
             raise TypeError('gyro_error is not valid.')
 
@@ -268,7 +272,7 @@ class IMU(object):
                 if i in self.accel_err:
                     self.accel_err[i] = accel_error[i]
                 else:
-                    raise ValueError('unsupported key: %s in accel_error'% i)
+                    raise ValueError('unsupported key: %s in accel_error' % i)
         else:
             raise TypeError('accel_error is not valid.')
 
@@ -287,7 +291,7 @@ class IMU(object):
             self.gps_err = gps_low_accuracy
         elif isinstance(gps_error, dict):
             if 'stdp' in gps_error and\
-                'stdv' in gps_error:
+                    'stdv' in gps_error:
                 self.gps_err = gps_error
             else:
                 raise ValueError('gps_error should have key: stdp and stdv')
@@ -309,7 +313,7 @@ class IMU(object):
             self.odo_err = odo_low_accuracy
         elif isinstance(odo_error, dict):
             if 'stdp' in odo_error and\
-                'stdv' in odo_error:
+                    'stdv' in odo_error:
                 self.odo_err = odo_error
             else:
                 raise ValueError('odo_error should have key: stdp and stdv')
@@ -347,6 +351,6 @@ class IMU(object):
                 if i in self.mag_err:
                     self.mag_err[i] = mag_error[i]
                 else:
-                    raise ValueError('unsupported key: %s in mag_error'% i)
+                    raise ValueError('unsupported key: %s in mag_error' % i)
         else:
             raise TypeError('mag_error is not valid.')
